@@ -39,18 +39,59 @@ const Reports = (() => {
   }
 
   function exportPdf(report) {
-    // TODO-ARTEFACTO-03:
-    // Completa la exportación PDF usando jsPDF.
-    // Pista:
-    // const { jsPDF } = window.jspdf;
-    // const doc = new jsPDF();
-    // doc.text('Reporte de integridad', 14, 20);
-    // doc.save('reporte_integridad.pdf');
-    Swal.fire({
-      icon: 'warning',
-      title: 'PDF pendiente',
-      text: 'Debes completar la función exportPdf en js/reports.js.'
-    });
+    const { jsPDF } = window.jspdf || window.jspdf || {};
+    if (typeof jsPDF !== 'function') {
+      Swal.fire({
+        icon: 'error',
+        title: 'No fue posible generar PDF',
+        text: 'La librería jsPDF no está disponible.'
+      });
+      return;
+    }
+
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const title = 'Reporte de integridad - AgroData Integridad Pro';
+    const generatedAt = new Date(report.generatedAt).toLocaleString();
+    const lineHeight = 18;
+    let y = 48;
+
+    doc.setFontSize(16);
+    doc.text(title, 40, y);
+
+    doc.setFontSize(11);
+    y += 28;
+    doc.text(`Fecha de generación: ${generatedAt}`, 40, y);
+    y += lineHeight;
+    doc.text(`Total de registros: ${report.summary.total}`, 40, y);
+    y += lineHeight;
+    doc.text(`Registros válidos: ${report.summary.valid}`, 40, y);
+    y += lineHeight;
+    doc.text(`Advertencias: ${report.summary.warnings}`, 40, y);
+    y += lineHeight;
+    doc.text(`Errores: ${report.summary.errors}`, 40, y);
+    y += lineHeight;
+    doc.text(`Porcentaje de integridad: ${report.summary.integrityRate}%`, 40, y);
+
+    y += lineHeight * 2;
+    doc.setFontSize(12);
+    doc.text('Problemas detectados:', 40, y);
+    y += lineHeight;
+
+    if (!report.issues.length) {
+      doc.text('No se detectaron problemas de integridad.', 40, y);
+    } else {
+      report.issues.forEach((issue, index) => {
+        if (y > 740) {
+          doc.addPage();
+          y = 40;
+        }
+        const line = `${index + 1}. [${issue.type.toUpperCase()}] ${issue.source} fila ${issue.rowNumber} - ${issue.message}`;
+        doc.text(line, 40, y);
+        y += lineHeight;
+      });
+    }
+
+    doc.save('reporte_integridad.pdf');
   }
 
   return { buildPlainTextReport, exportTxt, exportJson, exportPdf };

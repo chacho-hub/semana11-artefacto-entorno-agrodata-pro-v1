@@ -29,9 +29,10 @@ const UI = (() => {
     const tbody = document.getElementById('tablaProduccion');
     tbody.innerHTML = rows.map(row => `
       <tr class="${rowClass(row.status)}">
+        <td>${row.rowNumber}</td>
         <td>${row.fecha || '-'}</td>
         <td>${row.producto || '-'}</td>
-        <td>${row.cantidad || '-'}</td>
+        <td>${Number.isNaN(row.quantity) ? (row.cantidad || '-') : row.quantity}</td>
         <td>${row.unidad || '-'}</td>
         <td>${row.responsable || '-'}</td>
         <td>${badge(row.status)}<br><small>${issueText(row.issues)}</small></td>
@@ -43,9 +44,10 @@ const UI = (() => {
     const tbody = document.getElementById('tablaInventario');
     tbody.innerHTML = rows.map(row => `
       <tr class="${rowClass(row.status)}">
+        <td>${row.rowNumber}</td>
         <td>${row.id || '-'}</td>
         <td>${row.producto || '-'}</td>
-        <td>${row.cantidad || '-'}</td>
+        <td>${Number.isNaN(row.quantity) ? (row.cantidad || '-') : row.quantity}</td>
         <td>${row.unidad || '-'}</td>
         <td>${row.estado || '-'}</td>
         <td>${badge(row.status)}<br><small>${issueText(row.issues)}</small></td>
